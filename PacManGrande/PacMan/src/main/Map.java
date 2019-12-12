@@ -2,89 +2,102 @@ package main;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
-import Entity.Entity;
-import Entity.Paco;
+import model.Entity;
+import model.Paco;
+import model.Tile;
 import processing.core.PApplet;
+import tools.MapReader;
 
 public class Map extends PApplet{	
-
+	//Status Variable für Spielstart / Ende / Pause
+		//private int game = 0;
+		private int totalScore;
+		private int lives;
+		final int tileSize = 20;
+		int rows, columns;
+		Entity entity;
+		Paco paco;
+		Tile tile;
+		List<Tile> tiles;
+		private ArrayList<Entity> kiMonster;
+		
+		
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		PApplet.main("main.Map");
 		
-		
-	}
-	
-	// Hello Mario this is Kevin from the future. If you read this Ligma balls
-	
-	
-	//Status Variable für Spielstart / Ende / Pause
-	private int game = 0;
-	private int totalScore;
-	private int lives;
-	Paco paco;
-	Entity entity;
-	private ArrayList<Entity> kiMonster;
-	ArrayList<Tile> tiles;
-	Tile tile;
-	
+	}	
 	
 	public void settings() {
 		//Fenster wird generiert mit der Grösse 1200x800
 		size(1200,800);
 	}
 	
-	public void setup() {
-		entity = new Entity (sketchOutputPath(), 0xffd38ca8, 20, 80, 20, 20, this);
-		tile = new Tile();
-		//ArrayList mit kiMonster füllen
-		kiMonster= new ArrayList<Entity>();
-		for(int i = 0; i < 3; i++) {
-			kiMonster.add(new Entity(sketchOutputPath(), 0xffd38ca8, 20, 80, 20, 20, this));
-		}
-	}
-	
-	
 	/**
-	 * Funktion zum erzeugen eines Tiles (merhfach verwendbar)
+	 * Funktion die den Index in der console ausgibt wenn man ein Tile anklickt
 	 */
-	private void setupTiles() {
-		int tileSize = 50;
-		int tilesX = width/tileSize;
-		int tilesY = height/tileSize;
+	public void mouseClicked() {
+		int tileIndex = mouseX / tileSize + (mouseY / tileSize) * columns;
+		System.out.println(tileIndex);
+	}	
+	
+	public void setup() {
+		
+		/**
+		 * hier wird das File paco_map.txt eingelesen und basierend auf die indexes im File
+		 * entschieden welche Indexes als Walls gelten
+		 */
+		List<Integer> walls = MapReader.getMap("resource/paco_map.txt");
+		
+		rows = height / tileSize;
+		columns = width / tileSize;
 		tiles = new ArrayList<Tile>();
-		//Tiles werden basierend auf x und y  Position erzeugt solange bis das komplette Fenster voll mit tiles ist
-		for (int i = 0; i <  tilesX*tilesY; i++) {
-			int xPos = (i%tilesX)*50;
-			int yPos = (i/tilesX)*50;
-			//Tiles werden in die ArrayList hinzugefügt
-			tiles.add(new Tile());
-		}
+		for (int i=0; i < rows * columns; i++) {
+			boolean isWall = walls.contains(i);
+			/*Schleife die Prüft ob ein Tile ein PickUp besitzt oder nicht, wenn ja score addieren sonst nichts
+			boolean hasPickUps = false;
+			if(hasPickUps == true) {
+				paco.score = paco.score + 100;
+			}
+			else {
+				paco.score = paco.score + 0;
+			}
+			*/
+			tiles.add(new Tile(tileSize, i, isWall/*, hasPickUps*/));		}
 	}
 	
 	public void draw() {		
 		//Änder die Farbe des Fensters auf Schwarz
-		this.background(0);
+		this.background(0);		
 		
-		//Funktionsaufruf der drawTiles Funktion
-		tile.drawTile(this);		
-		background(0);
+		//Tiles zeichnen
+		tiles.forEach(t -> t.draw(this));
 		
+		/* HIER MÜSSTEN DIE PACOS UND MONSTER GEZEICHNET WERDEN
+		paco.drawPaco();
+		monster.drawMonster1();
+		monster.drawMonster2();
+		monster.drawMonster3();
+		*/
 		
+		/*
+		//Score Text
 		fill(255);
 		textSize(32);
 		text("score", 10,  40);
-		entity.draw();
+		*/
+		
+		/*
 		//KIRobis aus ArrayList zeichnen
 		for(Entity m: kiMonster) {
 			m.draw();
 		}
+		*/
 		
 		
-		
-		
-		/**
+		/*
 		//SPIEL STARTEN VIA KNOPFDRUCK
 		if(game==0) {
 			background(0);
@@ -99,9 +112,10 @@ public class Map extends PApplet{
 		if(game==1) {
 			
 		}
-		**/
+		*/
 	}
 	
+	/*
 	public void keyPressed() {
 		//println(keyCode);
 		switch(keyCode) {
@@ -111,5 +125,5 @@ public class Map extends PApplet{
 		case LEFT: entity.moveLeft(); break;
 		}
 	}
-
+	*/
 }
